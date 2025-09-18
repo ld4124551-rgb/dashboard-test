@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Médiatique - Suivi de Performance</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>Dashboard Médiatique - Suivi de Performance</h1>
+            <p class="period-indicator">Période actuelle : 2025-S1</p>
+        </header>
+        
+        <section class="filters-section">
+            <div class="filters-header">
+                <h2>Filtres Avancés par KPI</h2>
+                <div class="filters-actions">
+                    <button class="btn btn--outline btn--sm" id="resetFilters">🔄 Reset</button>
+                    <div class="results-counter">
+                        <span id="resultsCount">17 périodes</span> correspondent à vos critères
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <section class="kpi-section">
+            <div class="kpi-grid">
+                <div class="kpi-card">
+                    <div class="kpi-icon">📊</div>
+                    <div class="kpi-content">
+                        <h3>Volume</h3>
+                        <div class="kpi-value">624</div>
+                        <div class="kpi-subtitle">retombées</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <script src="app.js"></script>
+    </div>
+</body>
+</html>
