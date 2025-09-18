@@ -1,0 +1,932 @@
+// Données du dashboard avec filtres avancés
+const dashboardData = {
+  rawData: [
+    {"Année": 2017, "Semestre": "S1", "Volume": 420, "Audience": 81, "Tonalité": 12.4, "Prises_Parole": 22.0, "Médiatisation": 40.0, "Messages_Clés": 36.0, "Période": "2017-S1"},
+    {"Année": 2017, "Semestre": "S2", "Volume": 560, "Audience": 86, "Tonalité": 11.3, "Prises_Parole": 26.0, "Médiatisation": 42.0, "Messages_Clés": 22.0, "Période": "2017-S2"},
+    {"Année": 2018, "Semestre": "S1", "Volume": 481, "Audience": 90, "Tonalité": 11.9, "Prises_Parole": 21.0, "Médiatisation": 46.0, "Messages_Clés": 21.0, "Période": "2018-S1"},
+    {"Année": 2018, "Semestre": "S2", "Volume": 784, "Audience": 91, "Tonalité": 11.5, "Prises_Parole": 13.0, "Médiatisation": 34.0, "Messages_Clés": 16.0, "Période": "2018-S2"},
+    {"Année": 2019, "Semestre": "S1", "Volume": 688, "Audience": 79, "Tonalité": 11.4, "Prises_Parole": 14.0, "Médiatisation": 31.0, "Messages_Clés": 16.0, "Période": "2019-S1"},
+    {"Année": 2019, "Semestre": "S2", "Volume": 635, "Audience": 62, "Tonalité": 11.4, "Prises_Parole": 13.0, "Médiatisation": 36.0, "Messages_Clés": 28.0, "Période": "2019-S2"},
+    {"Année": 2020, "Semestre": "S1", "Volume": 757, "Audience": 114, "Tonalité": 11.5, "Prises_Parole": 33.0, "Médiatisation": 51.0, "Messages_Clés": 31.0, "Période": "2020-S1"},
+    {"Année": 2020, "Semestre": "S2", "Volume": 594, "Audience": 89, "Tonalité": 11.4, "Prises_Parole": 29.0, "Médiatisation": 41.0, "Messages_Clés": 31.0, "Période": "2020-S2"},
+    {"Année": 2021, "Semestre": "S1", "Volume": 545, "Audience": 68, "Tonalité": 11.8, "Prises_Parole": 29.0, "Médiatisation": 45.0, "Messages_Clés": 29.0, "Période": "2021-S1"},
+    {"Année": 2021, "Semestre": "S2", "Volume": 678, "Audience": 71, "Tonalité": 11.5, "Prises_Parole": 27.0, "Médiatisation": 51.0, "Messages_Clés": 24.0, "Période": "2021-S2"},
+    {"Année": 2022, "Semestre": "S1", "Volume": 668, "Audience": 52, "Tonalité": 12.0, "Prises_Parole": 30.0, "Médiatisation": 45.0, "Messages_Clés": 35.0, "Période": "2022-S1"},
+    {"Année": 2022, "Semestre": "S2", "Volume": 600, "Audience": 70, "Tonalité": 11.4, "Prises_Parole": 26.0, "Médiatisation": 30.0, "Messages_Clés": 15.0, "Période": "2022-S2"},
+    {"Année": 2023, "Semestre": "S1", "Volume": 668, "Audience": 63, "Tonalité": 11.2, "Prises_Parole": 11.0, "Médiatisation": 22.0, "Messages_Clés": 16.0, "Période": "2023-S1"},
+    {"Année": 2023, "Semestre": "S2", "Volume": 594, "Audience": 59, "Tonalité": 11.6, "Prises_Parole": 18.0, "Médiatisation": 21.0, "Messages_Clés": 17.0, "Période": "2023-S2"},
+    {"Année": 2024, "Semestre": "S1", "Volume": 875, "Audience": 133, "Tonalité": 12.5, "Prises_Parole": 22.0, "Médiatisation": 35.0, "Messages_Clés": 40.0, "Période": "2024-S1"},
+    {"Année": 2024, "Semestre": "S2", "Volume": 710, "Audience": 60, "Tonalité": 11.7, "Prises_Parole": 20.0, "Médiatisation": 23.0, "Messages_Clés": 28.0, "Période": "2024-S2"},
+    {"Année": 2025, "Semestre": "S1", "Volume": 624, "Audience": 41, "Tonalité": 12.2, "Prises_Parole": 16.0, "Médiatisation": 25.0, "Messages_Clés": 30.0, "Période": "2025-S1"}
+  ]
+};
+
+// Configuration des couleurs Chart.js
+const chartColors = ['#1FB8CD', '#FFC185', '#B4413C', '#ECEBD5', '#5D878F', '#DB4545', '#D2BA4C', '#964325', '#944454', '#13343B'];
+
+// Variables globales
+let charts = {};
+let filteredData = [...dashboardData.rawData];
+let currentFilters = {
+  Volume: { min: 420, max: 875 },
+  Audience: { min: 41, max: 133 },
+  Tonalité: { min: 11.2, max: 12.5 },
+  Prises_Parole: { min: 11, max: 33 },
+  Médiatisation: { min: 21, max: 51 },
+  Messages_Clés: { min: 15, max: 40 }
+};
+
+let filtersActive = false;
+
+// Attendre le chargement complet
+window.addEventListener('load', function() {
+  setTimeout(() => {
+    console.log('Initializing dashboard with advanced filters...');
+    initializeApp();
+  }, 100);
+});
+
+function initializeApp() {
+  try {
+    console.log('Setting up tabs...');
+    setupTabs();
+    
+    console.log('Setting up filters...');
+    setupFilters();
+    
+    console.log('Creating charts...');
+    createAllCharts();
+    
+    console.log('Updating initial data...');
+    updateAllData();
+    
+    console.log('Setting up export buttons...');
+    setupExportButtons();
+    
+    console.log('Dashboard with advanced filters initialized successfully!');
+  } catch (error) {
+    console.error('Error initializing dashboard:', error);
+  }
+}
+
+// Configuration des filtres
+function setupFilters() {
+  // Configuration des sliders individuels
+  setupSlider('volumeMin', 'volumeMax', 'Volume');
+  setupSlider('audienceMin', 'audienceMax', 'Audience');
+  setupSlider('tonaliteMin', 'tonaliteMax', 'Tonalité');
+  setupSlider('prisesParoleMin', 'prisesParoleMax', 'Prises_Parole');
+  setupSlider('mediatisationMin', 'mediatisationMax', 'Médiatisation');
+  setupSlider('messagesClesMin', 'messagesClesMax', 'Messages_Clés');
+  
+  // Bouton reset
+  const resetButton = document.getElementById('resetFilters');
+  if (resetButton) {
+    resetButton.addEventListener('click', resetAllFilters);
+  }
+  
+  // Initialiser les valeurs affichées
+  updateSliderDisplays();
+  console.log('Filters setup completed');
+}
+
+function setupSlider(minId, maxId, kpi) {
+  const minSlider = document.getElementById(minId);
+  const maxSlider = document.getElementById(maxId);
+  
+  if (!minSlider || !maxSlider) {
+    console.warn(`Sliders not found for ${kpi}: ${minId}, ${maxId}`);
+    return;
+  }
+  
+  // Événements pour les sliders
+  minSlider.addEventListener('input', (e) => handleSliderChange(e, kpi, 'min'));
+  maxSlider.addEventListener('input', (e) => handleSliderChange(e, kpi, 'max'));
+  
+  // Événements pour mise à jour en temps réel
+  minSlider.addEventListener('change', (e) => handleSliderChange(e, kpi, 'min'));
+  maxSlider.addEventListener('change', (e) => handleSliderChange(e, kpi, 'max'));
+  
+  console.log(`Setup slider for ${kpi}: ${minId}, ${maxId}`);
+}
+
+function handleSliderChange(event, kpi, type) {
+  const slider = event.target;
+  const value = parseFloat(slider.value);
+  
+  console.log(`Slider change: ${kpi} ${type} = ${value}`);
+  
+  // Mettre à jour le filtre
+  currentFilters[kpi][type] = value;
+  
+  // S'assurer que min <= max
+  if (type === 'min' && currentFilters[kpi].min > currentFilters[kpi].max) {
+    currentFilters[kpi].max = currentFilters[kpi].min;
+    const maxSliderId = slider.id.replace('Min', 'Max');
+    const maxSlider = document.getElementById(maxSliderId);
+    if (maxSlider) {
+      maxSlider.value = currentFilters[kpi].max;
+    }
+  } else if (type === 'max' && currentFilters[kpi].max < currentFilters[kpi].min) {
+    currentFilters[kpi].min = currentFilters[kpi].max;
+    const minSliderId = slider.id.replace('Max', 'Min');
+    const minSlider = document.getElementById(minSliderId);
+    if (minSlider) {
+      minSlider.value = currentFilters[kpi].min;
+    }
+  }
+  
+  // Mettre à jour les affichages
+  updateSliderDisplays();
+  
+  // Vérifier si les filtres sont actifs
+  checkFiltersActive();
+  
+  // Appliquer les filtres
+  applyFilters();
+  
+  // Effet visuel sur la carte de filtre
+  const filterItem = slider.closest('.filter-item');
+  if (filterItem) {
+    filterItem.classList.add('active');
+    setTimeout(() => filterItem.classList.remove('active'), 300);
+  }
+}
+
+function checkFiltersActive() {
+  const originalFilters = {
+    Volume: { min: 420, max: 875 },
+    Audience: { min: 41, max: 133 },
+    Tonalité: { min: 11.2, max: 12.5 },
+    Prises_Parole: { min: 11, max: 33 },
+    Médiatisation: { min: 21, max: 51 },
+    Messages_Clés: { min: 15, max: 40 }
+  };
+  
+  filtersActive = Object.keys(currentFilters).some(kpi => {
+    return currentFilters[kpi].min !== originalFilters[kpi].min || 
+           currentFilters[kpi].max !== originalFilters[kpi].max;
+  });
+  
+  updateFiltersStatus();
+}
+
+function updateFiltersStatus() {
+  const statusElement = document.getElementById('filtersStatus');
+  if (!statusElement) return;
+  
+  if (filtersActive) {
+    statusElement.textContent = `Filtres actifs - ${filteredData.length} périodes correspondent à vos critères.`;
+    statusElement.className = 'status--success';
+  } else {
+    statusElement.textContent = 'Tous les filtres sont désactivés. Utilisez les sliders pour filtrer les données.';
+    statusElement.className = 'status--info';
+  }
+}
+
+function updateSliderDisplays() {
+  const kpiMappings = {
+    'Volume': 'volume',
+    'Audience': 'audience', 
+    'Tonalité': 'tonalite',
+    'Prises_Parole': 'prisesparole',
+    'Médiatisation': 'mediatisation',
+    'Messages_Clés': 'messagescles'
+  };
+  
+  Object.keys(currentFilters).forEach(kpi => {
+    const minValue = currentFilters[kpi].min;
+    const maxValue = currentFilters[kpi].max;
+    const mapping = kpiMappings[kpi];
+    
+    // Mettre à jour les valeurs affichées
+    const minValueElement = document.getElementById(`${mapping}MinValue`);
+    const maxValueElement = document.getElementById(`${mapping}MaxValue`);
+    const rangeElement = document.getElementById(`${mapping}Range`);
+    
+    if (minValueElement) {
+      let displayValue = minValue;
+      if (kpi === 'Audience') displayValue += 'M';
+      else if (kpi === 'Tonalité') displayValue += '/20';
+      else if (kpi.includes('Parole') || kpi.includes('Messages') || kpi.includes('Médiatisation')) displayValue += '%';
+      minValueElement.textContent = displayValue;
+    }
+    
+    if (maxValueElement) {
+      let displayValue = maxValue;
+      if (kpi === 'Audience') displayValue += 'M';
+      else if (kpi === 'Tonalité') displayValue += '/20';
+      else if (kpi.includes('Parole') || kpi.includes('Messages') || kpi.includes('Médiatisation')) displayValue += '%';
+      maxValueElement.textContent = displayValue;
+    }
+    
+    if (rangeElement) {
+      let minDisplay = minValue;
+      let maxDisplay = maxValue;
+      if (kpi === 'Audience') {
+        minDisplay += 'M';
+        maxDisplay += 'M';
+      } else if (kpi === 'Tonalité') {
+        minDisplay += '/20';
+        maxDisplay += '/20';
+      } else if (kpi.includes('Parole') || kpi.includes('Messages') || kpi.includes('Médiatisation')) {
+        minDisplay += '%';
+        maxDisplay += '%';
+      }
+      rangeElement.textContent = `${minDisplay} - ${maxDisplay}`;
+    }
+  });
+}
+
+function applyFilters() {
+  // Filtrer les données
+  filteredData = dashboardData.rawData.filter(item => {
+    return Object.keys(currentFilters).every(kpi => {
+      const value = item[kpi];
+      return value >= currentFilters[kpi].min && value <= currentFilters[kpi].max;
+    });
+  });
+  
+  console.log(`Filtered data: ${filteredData.length} periods match criteria`);
+  
+  // Mettre à jour tous les éléments
+  updateResultsCounter();
+  updateKPIs();
+  updateAllCharts();
+  updateDataTable();
+  updatePerformanceTable();
+}
+
+function updateResultsCounter() {
+  const resultsCount = document.getElementById('resultsCount');
+  if (resultsCount) {
+    resultsCount.textContent = `${filteredData.length} périodes`;
+  }
+}
+
+function resetAllFilters() {
+  console.log('Resetting all filters...');
+  
+  // Reset des valeurs de filtres
+  currentFilters = {
+    Volume: { min: 420, max: 875 },
+    Audience: { min: 41, max: 133 },
+    Tonalité: { min: 11.2, max: 12.5 },
+    Prises_Parole: { min: 11, max: 33 },
+    Médiatisation: { min: 21, max: 51 },
+    Messages_Clés: { min: 15, max: 40 }
+  };
+  
+  // Reset des sliders
+  document.getElementById('volumeMin').value = 420;
+  document.getElementById('volumeMax').value = 875;
+  document.getElementById('audienceMin').value = 41;
+  document.getElementById('audienceMax').value = 133;
+  document.getElementById('tonaliteMin').value = 11.2;
+  document.getElementById('tonaliteMax').value = 12.5;
+  document.getElementById('prisesParoleMin').value = 11;
+  document.getElementById('prisesParoleMax').value = 33;
+  document.getElementById('mediatisationMin').value = 21;
+  document.getElementById('mediatisationMax').value = 51;
+  document.getElementById('messagesClesMin').value = 15;
+  document.getElementById('messagesClesMax').value = 40;
+  
+  filtersActive = false;
+  
+  // Mettre à jour les affichages
+  updateSliderDisplays();
+  applyFilters();
+  
+  // Animation de reset
+  const filterItems = document.querySelectorAll('.filter-item');
+  filterItems.forEach((item, index) => {
+    setTimeout(() => {
+      item.classList.add('updating');
+      setTimeout(() => item.classList.remove('updating'), 300);
+    }, index * 50);
+  });
+}
+
+function updateKPIs() {
+  if (filteredData.length === 0) {
+    // Aucune donnée ne correspond aux filtres
+    updateKPIValue('kpiVolume', '0');
+    updateKPIValue('kpiAudience', '0M');
+    updateKPIValue('kpiTonalite', '0');
+    updateKPIValue('kpiPrisesParole', '0%');
+    updateKPIValue('kpiMediatisation', '0%');
+    updateKPIValue('kpiMessagesCles', '0%');
+    
+    // Mettre à jour les compteurs
+    ['volumeCount', 'audienceCount', 'tonaliteCount', 'prisesParoleCount', 'mediatisationCount', 'messagesClesCount'].forEach(id => {
+      updateCounterValue(id, '0 périodes');
+    });
+    return;
+  }
+  
+  // Calculer les moyennes sur les données filtrées
+  const averages = {
+    Volume: Math.round(filteredData.reduce((sum, item) => sum + item.Volume, 0) / filteredData.length),
+    Audience: Math.round(filteredData.reduce((sum, item) => sum + item.Audience, 0) / filteredData.length),
+    Tonalité: (filteredData.reduce((sum, item) => sum + item.Tonalité, 0) / filteredData.length).toFixed(1),
+    Prises_Parole: Math.round(filteredData.reduce((sum, item) => sum + item.Prises_Parole, 0) / filteredData.length),
+    Médiatisation: Math.round(filteredData.reduce((sum, item) => sum + item.Médiatisation, 0) / filteredData.length),
+    Messages_Clés: Math.round(filteredData.reduce((sum, item) => sum + item.Messages_Clés, 0) / filteredData.length)
+  };
+  
+  // Mettre à jour les KPIs
+  updateKPIValue('kpiVolume', averages.Volume);
+  updateKPIValue('kpiAudience', averages.Audience + 'M');
+  updateKPIValue('kpiTonalite', averages.Tonalité.replace('.', ','));
+  updateKPIValue('kpiPrisesParole', averages.Prises_Parole + '%');
+  updateKPIValue('kpiMediatisation', averages.Médiatisation + '%');
+  updateKPIValue('kpiMessagesCles', averages.Messages_Clés + '%');
+  
+  // Mettre à jour les compteurs
+  const countText = `${filteredData.length} périodes`;
+  ['volumeCount', 'audienceCount', 'tonaliteCount', 'prisesParoleCount', 'mediatisationCount', 'messagesClesCount'].forEach(id => {
+    updateCounterValue(id, countText);
+  });
+}
+
+function updateKPIValue(elementId, value) {
+  const element = document.getElementById(elementId);
+  if (element) {
+    element.classList.add('updating');
+    setTimeout(() => {
+      element.textContent = value;
+      element.classList.remove('updating');
+    }, 150);
+  }
+}
+
+function updateCounterValue(elementId, value) {
+  const element = document.getElementById(elementId);
+  if (element) {
+    element.textContent = value;
+  }
+}
+
+// Gestion des onglets
+function setupTabs() {
+  const tabButtons = document.querySelectorAll('.tab-btn');
+  const tabPanes = document.querySelectorAll('.tab-pane');
+
+  tabButtons.forEach((button) => {
+    button.addEventListener('click', (e) => {
+      e.preventDefault();
+      const targetTab = button.dataset.tab;
+      
+      // Mettre à jour les boutons
+      tabButtons.forEach(btn => btn.classList.remove('active'));
+      button.classList.add('active');
+      
+      // Mettre à jour les panneaux
+      tabPanes.forEach(pane => {
+        pane.classList.add('hidden');
+        pane.classList.remove('active');
+      });
+      
+      const targetPane = document.getElementById(targetTab);
+      if (targetPane) {
+        targetPane.classList.remove('hidden');
+        targetPane.classList.add('active');
+        
+        // Redimensionner les graphiques
+        setTimeout(() => {
+          Object.values(charts).forEach(chart => {
+            if (chart && typeof chart.resize === 'function') {
+              try {
+                chart.resize();
+              } catch (e) {
+                console.warn('Chart resize error:', e);
+              }
+            }
+          });
+        }, 150);
+      }
+    });
+  });
+}
+
+// Créer tous les graphiques
+function createAllCharts() {
+  createEvolutionChart();
+  createPerformanceChart();
+  createDetailedCharts();
+  createAnnualChart();
+}
+
+function createEvolutionChart() {
+  const canvas = document.getElementById('evolutionChart');
+  if (!canvas) return;
+  
+  const ctx = canvas.getContext('2d');
+  
+  charts.evolution = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: [],
+      datasets: [
+        {
+          label: 'Volume',
+          data: [],
+          borderColor: chartColors[0],
+          backgroundColor: chartColors[0] + '20',
+          yAxisID: 'y'
+        },
+        {
+          label: 'Audience',
+          data: [],
+          borderColor: chartColors[1],
+          backgroundColor: chartColors[1] + '20',
+          yAxisID: 'y1'
+        },
+        {
+          label: 'Tonalité',
+          data: [],
+          borderColor: chartColors[2],
+          backgroundColor: chartColors[2] + '20',
+          yAxisID: 'y2'
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: {
+        mode: 'index',
+        intersect: false,
+      },
+      scales: {
+        x: {
+          display: true,
+          title: {
+            display: true,
+            text: 'Période'
+          }
+        },
+        y: {
+          type: 'linear',
+          display: true,
+          position: 'left',
+          title: {
+            display: true,
+            text: 'Volume'
+          }
+        },
+        y1: {
+          type: 'linear',
+          display: true,
+          position: 'right',
+          title: {
+            display: true,
+            text: 'Audience (M)'
+          },
+          grid: {
+            drawOnChartArea: false,
+          }
+        },
+        y2: {
+          type: 'linear',
+          display: false,
+          min: 10,
+          max: 15
+        }
+      }
+    }
+  });
+}
+
+function createPerformanceChart() {
+  const canvas = document.getElementById('performanceChart');
+  if (!canvas) return;
+  
+  const ctx = canvas.getContext('2d');
+  
+  charts.performance = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: [],
+      datasets: [
+        {
+          label: 'Prises de Parole',
+          data: [],
+          borderColor: chartColors[3],
+          backgroundColor: chartColors[3] + '40',
+          fill: true
+        },
+        {
+          label: 'Médiatisation',
+          data: [],
+          borderColor: chartColors[4],
+          backgroundColor: chartColors[4] + '40',
+          fill: true
+        },
+        {
+          label: 'Messages Clés',
+          data: [],
+          borderColor: chartColors[5],
+          backgroundColor: chartColors[5] + '40',
+          fill: true
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: {
+        y: {
+          title: {
+            display: true,
+            text: 'Pourcentage (%)'
+          },
+          min: 0,
+          max: 60
+        }
+      }
+    }
+  });
+}
+
+function createDetailedCharts() {
+  const metrics = [
+    { id: 'volumeChart', key: 'Volume', title: 'Volume', color: chartColors[0] },
+    { id: 'audienceChart', key: 'Audience', title: 'Audience (M)', color: chartColors[1] },
+    { id: 'tonaliteChart', key: 'Tonalité', title: 'Tonalité (/20)', color: chartColors[2] },
+    { id: 'prisesParoleChart', key: 'Prises_Parole', title: 'Prises de Parole (%)', color: chartColors[3] },
+    { id: 'mediatisationChart', key: 'Médiatisation', title: 'Médiatisation (%)', color: chartColors[4] },
+    { id: 'messagesClesChart', key: 'Messages_Clés', title: 'Messages Clés (%)', color: chartColors[5] }
+  ];
+
+  metrics.forEach(metric => {
+    const canvas = document.getElementById(metric.id);
+    if (!canvas) return;
+    
+    const ctx = canvas.getContext('2d');
+    
+    charts[metric.id] = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: [],
+        datasets: [{
+          label: metric.title,
+          data: [],
+          backgroundColor: metric.color + '80',
+          borderColor: metric.color,
+          borderWidth: 2
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          y: {
+            beginAtZero: true,
+            title: {
+              display: true,
+              text: metric.title
+            }
+          }
+        }
+      }
+    });
+  });
+}
+
+function createAnnualChart() {
+  const canvas = document.getElementById('annualChart');
+  if (!canvas) return;
+  
+  const ctx = canvas.getContext('2d');
+  
+  charts.annual = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: [],
+      datasets: [
+        {
+          label: 'Volume',
+          data: [],
+          backgroundColor: chartColors[0] + '80',
+          borderColor: chartColors[0],
+          borderWidth: 2,
+          yAxisID: 'y'
+        },
+        {
+          label: 'Audience',
+          data: [],
+          backgroundColor: chartColors[1] + '80',
+          borderColor: chartColors[1],
+          borderWidth: 2,
+          yAxisID: 'y1'
+        },
+        {
+          label: 'Tonalité',
+          data: [],
+          backgroundColor: chartColors[2] + '80',
+          borderColor: chartColors[2],
+          borderWidth: 2,
+          yAxisID: 'y2'
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: {
+        y: {
+          type: 'linear',
+          display: true,
+          position: 'left',
+          title: { display: true, text: 'Volume' }
+        },
+        y1: {
+          type: 'linear',
+          display: true,
+          position: 'right',
+          title: { display: true, text: 'Audience (M)' },
+          grid: { drawOnChartArea: false }
+        },
+        y2: {
+          type: 'linear',
+          display: false,
+          min: 10,
+          max: 15
+        }
+      }
+    }
+  });
+}
+
+function updateAllCharts() {
+  const labels = filteredData.map(d => d.Période);
+  
+  // Evolution chart
+  if (charts.evolution) {
+    charts.evolution.data.labels = labels;
+    charts.evolution.data.datasets[0].data = filteredData.map(d => d.Volume);
+    charts.evolution.data.datasets[1].data = filteredData.map(d => d.Audience);
+    charts.evolution.data.datasets[2].data = filteredData.map(d => d.Tonalité);
+    charts.evolution.update();
+  }
+  
+  // Performance chart
+  if (charts.performance) {
+    charts.performance.data.labels = labels;
+    charts.performance.data.datasets[0].data = filteredData.map(d => d.Prises_Parole);
+    charts.performance.data.datasets[1].data = filteredData.map(d => d.Médiatisation);
+    charts.performance.data.datasets[2].data = filteredData.map(d => d.Messages_Clés);
+    charts.performance.update();
+  }
+  
+  // Detailed charts
+  const metrics = [
+    { id: 'volumeChart', key: 'Volume' },
+    { id: 'audienceChart', key: 'Audience' },
+    { id: 'tonaliteChart', key: 'Tonalité' },
+    { id: 'prisesParoleChart', key: 'Prises_Parole' },
+    { id: 'mediatisationChart', key: 'Médiatisation' },
+    { id: 'messagesClesChart', key: 'Messages_Clés' }
+  ];
+  
+  metrics.forEach(metric => {
+    if (charts[metric.id]) {
+      charts[metric.id].data.labels = labels;
+      charts[metric.id].data.datasets[0].data = filteredData.map(d => d[metric.key]);
+      charts[metric.id].update();
+    }
+  });
+  
+  // Annual chart
+  updateAnnualChart();
+}
+
+function updateAnnualChart() {
+  if (!charts.annual) return;
+  
+  // Calculer les moyennes annuelles sur les données filtrées
+  const annualData = {};
+  filteredData.forEach(item => {
+    const year = item.Année;
+    if (!annualData[year]) {
+      annualData[year] = {
+        count: 0,
+        Volume: 0,
+        Audience: 0,
+        Tonalité: 0,
+        Prises_Parole: 0,
+        Médiatisation: 0,
+        Messages_Clés: 0
+      };
+    }
+    
+    annualData[year].count++;
+    annualData[year].Volume += item.Volume;
+    annualData[year].Audience += item.Audience;
+    annualData[year].Tonalité += item.Tonalité;
+    annualData[year].Prises_Parole += item.Prises_Parole;
+    annualData[year].Médiatisation += item.Médiatisation;
+    annualData[year].Messages_Clés += item.Messages_Clés;
+  });
+  
+  const years = Object.keys(annualData).sort();
+  const volumeData = years.map(year => Math.round(annualData[year].Volume / annualData[year].count));
+  const audienceData = years.map(year => Math.round(annualData[year].Audience / annualData[year].count));
+  const tonaliteData = years.map(year => (annualData[year].Tonalité / annualData[year].count).toFixed(1));
+  
+  charts.annual.data.labels = years;
+  charts.annual.data.datasets[0].data = volumeData;
+  charts.annual.data.datasets[1].data = audienceData;
+  charts.annual.data.datasets[2].data = tonaliteData;
+  charts.annual.update();
+}
+
+function updateAllData() {
+  applyFilters();
+}
+
+function updatePerformanceTable() {
+  const tbody = document.getElementById('performanceTableBody');
+  if (!tbody) return;
+  
+  // Calculer les moyennes annuelles sur les données filtrées
+  const annualData = {};
+  filteredData.forEach(item => {
+    const year = item.Année;
+    if (!annualData[year]) {
+      annualData[year] = {
+        count: 0,
+        Volume: 0,
+        Audience: 0,
+        Tonalité: 0,
+        Prises_Parole: 0,
+        Médiatisation: 0,
+        Messages_Clés: 0
+      };
+    }
+    
+    annualData[year].count++;
+    Object.keys(item).forEach(key => {
+      if (key !== 'Année' && key !== 'Semestre' && key !== 'Période') {
+        annualData[year][key] += item[key];
+      }
+    });
+  });
+  
+  tbody.innerHTML = '';
+  
+  if (Object.keys(annualData).length === 0) {
+    const tr = document.createElement('tr');
+    tr.innerHTML = '<td colspan="7" class="no-results">Aucune donnée ne correspond aux filtres appliqués.</td>';
+    tbody.appendChild(tr);
+    return;
+  }
+  
+  Object.keys(annualData).sort().forEach(year => {
+    const data = annualData[year];
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td><strong>${year}</strong></td>
+      <td>${Math.round(data.Volume / data.count)}</td>
+      <td>${(data.Audience / data.count).toFixed(1)}M</td>
+      <td>${(data.Tonalité / data.count).toFixed(1)}/20</td>
+      <td>${(data.Prises_Parole / data.count).toFixed(1)}%</td>
+      <td>${(data.Médiatisation / data.count).toFixed(1)}%</td>
+      <td>${(data.Messages_Clés / data.count).toFixed(1)}%</td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+function updateDataTable() {
+  const tbody = document.getElementById('filteredDataTableBody');
+  const countElement = document.getElementById('filteredDataCount');
+  
+  if (countElement) {
+    countElement.textContent = filteredData.length;
+  }
+  
+  if (!tbody) return;
+  
+  tbody.innerHTML = '';
+  
+  if (filteredData.length === 0) {
+    const tr = document.createElement('tr');
+    tr.innerHTML = '<td colspan="7" class="no-results">Aucune période ne correspond à vos critères de filtrage.</td>';
+    tbody.appendChild(tr);
+    return;
+  }
+  
+  filteredData.forEach(item => {
+    const tr = document.createElement('tr');
+    tr.className = 'filtered-row';
+    tr.innerHTML = `
+      <td><strong>${item.Période}</strong></td>
+      <td>${item.Volume}</td>
+      <td>${item.Audience}M</td>
+      <td>${item.Tonalité}/20</td>
+      <td>${item.Prises_Parole}%</td>
+      <td>${item.Médiatisation}%</td>
+      <td>${item.Messages_Clés}%</td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+// Configuration des boutons d'export
+function setupExportButtons() {
+  const exportCSV = document.getElementById('exportFilteredCSV');
+  const exportJSON = document.getElementById('exportFilteredJSON');
+  
+  if (exportCSV) {
+    exportCSV.addEventListener('click', () => exportToCSV());
+  }
+  
+  if (exportJSON) {
+    exportJSON.addEventListener('click', () => exportToJSON());
+  }
+}
+
+function exportToCSV() {
+  const headers = ['Période', 'Volume', 'Audience', 'Tonalité', 'Prises_Parole', 'Médiatisation', 'Messages_Clés'];
+  const csv = [headers.join(',')];
+  
+  filteredData.forEach(row => {
+    const values = [
+      row.Période,
+      row.Volume,
+      row.Audience,
+      row.Tonalité,
+      row.Prises_Parole,
+      row.Médiatisation,
+      row.Messages_Clés
+    ];
+    csv.push(values.join(','));
+  });
+  
+  const csvContent = csv.join('\n');
+  downloadFile('donnees_filtrees.csv', csvContent, 'text/csv');
+  showNotification('Données filtrées exportées en CSV avec succès !');
+}
+
+function exportToJSON() {
+  const jsonContent = JSON.stringify({
+    filtres_appliques: currentFilters,
+    nombre_resultats: filteredData.length,
+    donnees: filteredData
+  }, null, 2);
+  downloadFile('donnees_filtrees.json', jsonContent, 'application/json');
+  showNotification('Données filtrées exportées en JSON avec succès !');
+}
+
+function downloadFile(filename, content, type) {
+  const blob = new Blob([content], { type });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+function showNotification(message) {
+  const notification = document.createElement('div');
+  notification.style.cssText = `
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: #1FB8CD;
+    color: white;
+    padding: 12px 24px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    z-index: 1000;
+    font-family: var(--font-family-base);
+    font-size: 14px;
+    animation: slideIn 0.3s ease-out;
+  `;
+  notification.textContent = message;
+  
+  if (!document.getElementById('notificationStyles')) {
+    const style = document.createElement('style');
+    style.id = 'notificationStyles';
+    style.textContent = `
+      @keyframes slideIn {
+        from { transform: translateX(100%); opacity: 0; }
+        to { transform: translateX(0); opacity: 1; }
+      }
+    `;
+    document.head.appendChild(style);
+  }
+  
+  document.body.appendChild(notification);
+  
+  setTimeout(() => {
+    if (notification.parentNode) {
+      notification.remove();
+    }
+  }, 3000);
+}
